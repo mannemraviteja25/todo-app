@@ -1,24 +1,30 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
+const { todo } = require('./db.js')
+
 
 const { createTodo, updateTodo } = require('./types.js')
 
+
+app.use(cors());
 app.use(express.json());
 
 
 app.post('/todo', async (req, res) => {
+  console.log("in the post request")
   const createPayload = req.body;
   const parsedPayload = createTodo.safeParse(createPayload)
-  if (!parsedPayload) {
+  if (!parsedPayload.success) {
     res.status(411).json({
       msg: "You sent the wrong inputs"
     })
     return;
   }
-  await todo.creat({
-    title: createTodo.title,
-    description: createTodo.description,
-    conmpleted: false
+  await todo.create({
+    title: createPayload.title,
+    description: createPayload.description,
+    completed: false
   });
   res.json({
     msg: "Todo created"
@@ -34,7 +40,7 @@ app.get('/todos', async (req, res) => {
 
 
 app.put('/completed', async (req, res) => {
-  const updatePayload = req.body;
+  const updatedPayload = req.body;
   const parsedPayload = updateTodo.safeParse(updatedPayload);
   if (!parsedPayload) {
     res.status(411).json({
@@ -53,4 +59,6 @@ app.put('/completed', async (req, res) => {
 
 
 
-app.listen(3000);
+app.listen(3000, () => {
+  console.log("Server is running at port 3000")
+});
